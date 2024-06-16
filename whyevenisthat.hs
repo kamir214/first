@@ -154,6 +154,7 @@ eval env (Seq es) = do
 
 main :: IO ()
 main = do
+-- test !
     let env = Map.empty :: Env
     let expr1 = Add (IntLit 2) (IntLit 3)
     let expr2 = Let "x" (IntLit 5) (Add (Ident "x") (IntLit 2))
