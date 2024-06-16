@@ -1,4 +1,4 @@
-# ! this repo is meant to be a dump. __do not__ complain.
+# ! this repo is meant to be a dump. <ins>do not</ins> complain.
 
 hewwo dea ra di nn.
 ```lua
