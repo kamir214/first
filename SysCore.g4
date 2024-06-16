@@ -1,3 +1,5 @@
+// Idk why did I code that, but I did
+
 grammar SysCore;
 
 // Keywords
