@@ -1,4 +1,4 @@
-// Idk why did I code that, but I did
+// !!! IsA PARSER
 
 grammar SysCore;
 
