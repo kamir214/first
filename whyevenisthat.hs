@@ -24,6 +24,7 @@ data Expr =
     | Fun String [String] Expr
     | Call Expr [Expr]
     | Seq [Expr]
+    | Repeat Expr Expr
     deriving (Show, Eq)
 
 type Env = Map.Map String Value
@@ -143,7 +144,7 @@ eval env (Fun x args body) = Right $ Closure env body
 eval env (Call f args) = do
     v <- eval env f
     case v of
-        FunVal x argNames body -> do  -- Remove env' from here .
+        FunVal x argNames body -> do
             vs <- mapM (eval env) args
             let env'' = Map.fromList (zip argNames vs) `Map.union` env
             eval env'' body
@@ -151,14 +152,27 @@ eval env (Call f args) = do
 eval env (Seq es) = do
     vs <- mapM (eval env) es
     return $ last vs
+eval env (Repeat f t) = do
+    v <- eval env t
+    case v of
+        IntVal i -> if i < 0
+            then error "Infinite loop"
+            else loop i env f
+        _ -> Left "Repeat count must be an integer"
+    where
+        loop 0 _ _ = Right $ IntVal 0
+        loop i env f = do
+            v <- eval env f
+            loop (i - 1) env f
 
 main :: IO ()
 main = do
--- test !
     let env = Map.empty :: Env
     let expr1 = Add (IntLit 2) (IntLit 3)
     let expr2 = Let "x" (IntLit 5) (Add (Ident "x") (IntLit 2))
     let expr3 = Fun "add" ["x", "y"] (Add (Ident "x") (Ident "y"))
+    let expr4 = Eq (IntLit 1) (IntLit 1)
+    let expr5 = Repeat (Fun "inc" ["x"] (Add (Ident "x") (IntLit 1))) (IntLit 5)
 
     putStrLn "Evaluating expr1..."
     case eval env expr1 of
@@ -172,5 +186,15 @@ main = do
 
     putStrLn "Evaluating expr3..."
     case eval env expr3 of
+        Left err -> putStrLn $ "Error: " ++ err
+        Right v -> print v
+
+    putStrLn "Evaluating expr4..."
+    case eval env expr4 of
+        Left err -> putStrLn $ "Error: " ++ err
+        Right v -> print v
+
+    putStrLn "Evaluating expr5..."
+    case eval env expr5 of
         Left err -> putStrLn $ "Error: " ++ err
         Right v -> print v
