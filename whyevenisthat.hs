@@ -1,7 +1,7 @@
 import qualified Data.Map as Map (Map, lookup, insert, fromList, union, empty)
 
 data Expr = 
-    IntLit Int 
+    IntLit Int
     | StrLit String
     | Ident String
     | Negate Expr
@@ -9,7 +9,7 @@ data Expr =
     | Add Expr Expr
     | Sub Expr Expr
     | Mul Expr Expr
-    | Div Expr Expr 
+    | Div Expr Expr
     | Mod Expr Expr
     | Eq Expr Expr
     | Neq Expr Expr
@@ -24,7 +24,7 @@ data Expr =
     | Fun String [String] Expr
     | Call Expr [Expr]
     | Seq [Expr]
-    | Repeat Expr Expr
+    | Repeat Expr Expr -- !
     deriving (Show, Eq)
 
 type Env = Map.Map String Value
@@ -152,7 +152,7 @@ eval env (Call f args) = do
 eval env (Seq es) = do
     vs <- mapM (eval env) es
     return $ last vs
-eval env (Repeat f t) = do
+eval env (Repeat f t) = do -- !
     v <- eval env t
     case v of
         IntVal i -> if i < 0
@@ -172,7 +172,7 @@ main = do
     let expr2 = Let "x" (IntLit 5) (Add (Ident "x") (IntLit 2))
     let expr3 = Fun "add" ["x", "y"] (Add (Ident "x") (Ident "y"))
     let expr4 = Eq (IntLit 1) (IntLit 1)
-    let expr5 = Repeat (Fun "inc" ["x"] (Add (Ident "x") (IntLit 1))) (IntLit 5)
+    let expr5 = Repeat (Fun "inc" ["x"] (Add (Ident "x") (IntLit 1))) (IntLit 5) -- !
 
     putStrLn "Evaluating expr1..."
     case eval env expr1 of
@@ -194,7 +194,7 @@ main = do
         Left err -> putStrLn $ "Error: " ++ err
         Right v -> print v
 
-    putStrLn "Evaluating expr5..."
+    putStrLn "Evaluating expr5..." -- !
     case eval env expr5 of
         Left err -> putStrLn $ "Error: " ++ err
         Right v -> print v
